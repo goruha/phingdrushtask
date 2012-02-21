@@ -71,6 +71,7 @@ class DrushTask extends Task {
   private $return_property = NULL;
   private $verbose = FALSE;
   private $haltonerror = TRUE;
+  private $proxy = '';
 
   /**
    * The Drush command to run.
@@ -85,6 +86,14 @@ class DrushTask extends Task {
   public function setBin($str) {
     $this->bin = $str;
   }
+
+  /**
+   * Proxy to use drush download
+   */
+  public function setProxy($str) {
+    $this->proxy = $str;
+  }
+
 
   /**
    * Drupal root directory to use.
@@ -198,6 +207,7 @@ class DrushTask extends Task {
     $this->root = $this->getProject()->getProperty('drush.root');
     $this->uri = $this->getProject()->getProperty('drush.uri');
     $this->bin = $this->getProject()->getProperty('drush.bin');
+    $this->proxy = $this->getProject()->getProperty('drush.proxy');
   }
 
   /**
@@ -205,6 +215,10 @@ class DrushTask extends Task {
    */
   public function main() {
     $command = array();
+    
+    if ($this->proxy) {
+      $command[] = "http_proxy=\"http://$this->proxy/\"";
+    }
 
     $command[] = !empty($this->bin) ? $this->bin : 'drush';
 
