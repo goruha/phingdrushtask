@@ -72,6 +72,7 @@ class DrushTask extends Task {
   private $verbose = FALSE;
   private $haltonerror = TRUE;
   private $proxy = '';
+  private $workpath = NULL;
 
   /**
    * The Drush command to run.
@@ -199,6 +200,14 @@ class DrushTask extends Task {
     }
   }
 
+
+  /**
+   * Define workpath for command execution.
+   */
+  public function setWorkpath($path) {
+    $this->workpath = $path;
+  }
+
   /**
    * Initialize the task.
    */
@@ -276,10 +285,22 @@ class DrushTask extends Task {
 
     $command = implode(' ', $command);
 
+    $cwd = getcwd();
+    $need_chdir = FALSE;
+
+    if ($this->workpath) {
+      $need_chdir = chdir($this->workpath);
+    }
+
     // Execute Drush.
     $this->log("Executing '$command'...");
     $output = array();
     exec($command, $output, $return);
+
+    if ($need_chdir) {
+      chdir($cwd);
+    }
+
     // Collect Drush output for display through Phing's log.
     foreach ($output as $line) {
       $this->log($line);
